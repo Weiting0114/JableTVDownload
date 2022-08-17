@@ -89,6 +89,8 @@ class MyDownloadListView(ScrollTreeView):
         self.bind("<Delete>", self._on_key_delete_event)
         self.bind("<B1-Motion>", self._move_row, add='+')
 
+        self.savePath = ""
+
     def exists(self, item):
         url_short = JableTVJob.get_urls_form(item)
         if url_short: return super().exists(url_short)
@@ -125,6 +127,19 @@ class MyDownloadListView(ScrollTreeView):
                 self.set(url_short, column=self._colnames[3], value=state)
             self.list_modified = True
 
+    def update_video_path(self, savePath=""):
+        items = self.get_children()
+        for it in items:
+            url = self.set(it)[self._colnames[0]]
+            url_short = JableTVJob.get_urls_form(url)
+            if url_short:
+                self.set(url_short, column=self._colnames[2], value=savePath)
+
+    def check_item_state(self):
+        firstItem = self.get_children()[0]
+        data = self.set(firstItem)
+        return data[self._colnames[3]]
+
     def additem(self, urls, saveName="", savePath="", state=""):
         url_short = JableTVJob.get_urls_form(urls)
         if url_short:
@@ -149,6 +164,7 @@ class MyDownloadListView(ScrollTreeView):
             for it in items:
                 data = self.set(it)
                 data[self._colnames[0]] = JableTVJob.get_urls_form(data[self._colnames[0]],shortform=False)
+                data[self._colnames[2]] = self.savePath
                 csvwriter.writerow(data)
         self.list_modified = False
 
@@ -159,4 +175,4 @@ class MyDownloadListView(ScrollTreeView):
             for rd in csvreader:
                 vv = [rd.pop(h, '') for h in self._colnames]
                 self.additem(vv[0], vv[1], vv[2], vv[3])
-        self.list_modified = False
+        self.list_modified = False       

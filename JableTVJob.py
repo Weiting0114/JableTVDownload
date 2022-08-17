@@ -52,7 +52,7 @@ class JableTVJob:
         self._t2_executor = None
         self._dirName = None
         self._cancel_job = None
-        self._dest_folder = None
+        self.dest_folder = None
         self._temp_folder = None
         self._targetName = None
         self._imageUrl = None
@@ -68,9 +68,9 @@ class JableTVJob:
             self._dirName = url_short
             self._temp_folder = os.path.join(os.getcwd(), self._dirName)
             if (savepath is None) or (savepath == ''):
-                self._dest_folder = self._temp_folder
+                self.dest_folder = self._temp_folder
             else:
-                self._dest_folder = os.path.join(os.getcwd(), savepath)
+                self.dest_folder = os.path.join(os.getcwd(), savepath)
             htmlfile = cloudscraper.create_scraper(browser=brs, delay=10).get(f"https://jable.tv/videos/{url_short}/")
             if htmlfile.status_code == 200:
                 result = re.search('og:title".+/>', htmlfile.text)
@@ -80,7 +80,7 @@ class JableTVJob:
                 result = re.search("https://.+m3u8", htmlfile.text)
                 self._m3u8url = result[0]
                 print("檔案名稱: " + self._targetName, flush=True)
-                print("儲存位置: " + self._dest_folder, flush=True)
+                print("儲存位置: " + self.dest_folder, flush=True)
                 print("檔案縮圖: " + self._imageUrl, flush=True)
             else:
                 raise Exception(f"Bad url names: {url}")
@@ -89,17 +89,17 @@ class JableTVJob:
             print(f"下載網址 {url} 錯誤!!", flush=True)
 
     def target_name(self): return self._targetName
-    def dest_folder(self): return self._dest_folder
+    def dest_folder(self): return self.dest_folder
     def is_url_vaildate(self): return True if self._m3u8url else False
 
     def _create_temp_folder(self):
         if not os.path.exists(self._temp_folder):  os.makedirs(self._temp_folder)
 
     def _create_dest_folder(self):
-        if not os.path.exists(self._dest_folder):  os.makedirs(self._dest_folder)
+        if not os.path.exists(self.dest_folder):  os.makedirs(self.dest_folder)
 
-    def _get_video_savename(self): return os.path.join(self._dest_folder, self._targetName + ".mp4")
-    def _get_image_savename(self): return os.path.join(self._dest_folder, self._targetName + ".jpg")
+    def _get_video_savename(self): return os.path.join(self.dest_folder, self._targetName + ".mp4")
+    def _get_image_savename(self): return os.path.join(self.dest_folder, self._targetName + ".jpg")
     def get_url_short(self): return self._dirName
     def get_url_full(self):  return f"https://jable.tv/videos/{self._dirName}/"
     def is_target_image_exist(self): return os.path.exists (self._get_image_savename())
@@ -172,7 +172,7 @@ class JableTVJob:
         spent_time = time.time() - start_time
         print('\n花費 {0:.2f} 秒合成影片'.format(spent_time), flush=True)
         self._deleteMp4Chunks()
-        if self._temp_folder != self._dest_folder:
+        if self._temp_folder != self.dest_folder:
             os.removedirs(self._temp_folder)
         return spent_time
 
@@ -220,7 +220,7 @@ class JableTVJob:
         self._t2_executor = None
         spent_time = time.time() - self._start_time
         if not self._cancel_job:
-            print('\n花費 {0:.2f} 分鐘 爬取完成 !'.format(spent_time / 60), flush=True)
+            print('\n花費 {0:.2f} 分鐘 爬取完成 !\n'.format(spent_time / 60), flush=True)
 
     def _prepareCrawl(self):
         self._downloadList = copy.deepcopy(self._tsList)
