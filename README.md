@@ -48,3 +48,6 @@ cloudscraper == 1.2.58
     b. "存方位置"：可自行設定影片儲存路徑，預設為 `JableTVDownload\DownloadVideos`。
     
     c. 關閉視窗時會將下載的相關資訊儲存至 `JableTV.csv`。
+    
+    d. [選擇性使用功能](https://ppt.cc/fPPwAx)
+    
