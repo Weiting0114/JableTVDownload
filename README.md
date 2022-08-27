@@ -34,12 +34,17 @@ cloudscraper == 1.2.58
     ![image](https://imgur.com/IcIPI8M.png)
 
 2. 選擇待下載影片，並點擊 "開始下載"
+
     ![image](https://imgur.com/G0TC0w7.png)  
 
 3. 完成
+
     ![image](https://imgur.com/iymySIF.png)
 
 4. 其他功能說明
+
     a. "導入文件"：將 `JableTV.csv` 資訊匯入至視窗中。
+
     b. "存方位置"：可自行設定影片儲存路徑，預設為 `JableTVDownload\DownloadVideos`。
+    
     c. 關閉視窗時會將下載的相關資訊儲存至 `JableTV.csv`。
