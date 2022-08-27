@@ -285,7 +285,6 @@ class JableTVDownloadWindow(tk.Tk):
             return
     
     def on_set_downloadpath(self):
-        if not self.tree.check_item_state() == "": return
 
         oripath = os.getcwd()
         try:
