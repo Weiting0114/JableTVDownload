@@ -299,7 +299,6 @@ class JableTVDownloadWindow(tk.Tk):
             self.tree.savePath = downloadPath
             self.tree.list_modified = True
 
-            #Todo 刷新 UI 顯示的儲存路徑
             self.tree.update_video_path(downloadPath)
         except Exception:
             return
