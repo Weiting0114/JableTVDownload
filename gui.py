@@ -6,6 +6,9 @@ import time
 import tkinter
 import tkinter.filedialog
 
+import func_timeout
+from func_timeout import func_set_timeout
+
 from mywidget import *
 from JableTVJob import JableTVJob
 import os
@@ -24,12 +27,14 @@ class JableTVDownloadWindow(tk.Tk):
         super().__init__(*args, **kwargs)
         self.protocol("WM_DELETE_WINDOW", self._on_window_closed)
         self._currentJob = None
+        self._terminateJob = None
         self._download_list = []
         self._cancel_all = False
         self._urls_list = []
         self._import_dest = dest
         self.create_widgets(dest, urls)
         self._is_abort = False
+        # self.cancel_successed = False
         self._clp_text = ""
         self.clipboard_checker = threading.Thread(target=self.check_clipboard).start()
         self.clipborad_thread = None
@@ -124,9 +129,23 @@ class JableTVDownloadWindow(tk.Tk):
     def _on_window_closed(self):
         self._is_abort = True
         self._urls_list = []
-        self.on_cancel_download()
-        self.save_on_close()
-        self.destroy()
+        if not self._currentJob:
+            self.destroy()
+        else:
+            self.on_terminate_window()
+            self.save_on_close()
+            try:
+                threading.Thread(target=self._cancel_download_thread).start()
+            except func_timeout.exceptions.FunctionTimedOut:
+                print('task func_timeout')
+        
+    @func_set_timeout(20)
+    def _cancel_download_thread(self):
+        count = 0
+        while(self._terminateJob.cancel_successed == False):
+            count += 1
+        if(self._terminateJob.cancel_successed):
+            self.destroy()
 
     def _get_entry_values(self):
         self.dest = self.dest_entry.get()
@@ -159,6 +178,16 @@ class JableTVDownloadWindow(tk.Tk):
         else:
             self.btn_cancel["state"] = tk.DISABLED
 
+    def on_terminate_window(self):
+        self._terminateJob, self._currentJob = self._currentJob, None
+        for i in range(len(self._download_list), 0, -1):
+            delete_url = self._download_list[i-1]
+            self.tree.update_item_state(delete_url[0], "已取消")
+            self._download_list.remove(delete_url)
+        if(self._terminateJob):
+            self.tree.update_item_state(self._terminateJob.get_url_short(), "未完成")
+            threading.Thread(target=self._terminateJob.cancel_download).start()           
+
     def on_cancel_all_download(self):
         self._cancel_all = True
         self.on_cancel_download()
@@ -167,6 +196,7 @@ class JableTVDownloadWindow(tk.Tk):
         if self._cancel_all or (self._currentJob and self.urls == self._currentJob.get_url_full()):
             jjob, self._currentJob = self._currentJob, None
             if(jjob):
+                self.cancel_successed = jjob.cancel_successed
                 self.tree.update_item_state(jjob.get_url_short(), "未完成")
                 threading.Thread(target=jjob.cancel_download).start()
         else:

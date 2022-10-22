@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import platform
+import threading
 import requests
 import os
 import re
@@ -57,6 +58,7 @@ class JableTVJob:
         self._targetName = None
         self._imageUrl = None
         self._m3u8url = None
+        self.cancel_successed = False
         self.get_url_infos(url, savepath)
 
     def get_url_infos(self, url, savepath=""):
@@ -75,6 +77,7 @@ class JableTVJob:
             if htmlfile.status_code == 200:
                 result = re.search('og:title".+/>', htmlfile.text)
                 self._targetName = result[0].split('"')[-2]
+                self._targetName =  re.sub(r'[^\w\-_\. ]', '', self._targetName)
                 result = re.search('og:image".+jpg"', htmlfile.text)
                 self._imageUrl = result[0].split('"')[-2]
                 result = re.search("https://.+m3u8", htmlfile.text)
@@ -270,10 +273,12 @@ class JableTVJob:
         if self._t_executor:
             self._t_executor.shutdown(wait=True, cancel_futures=True)
             self._t_executor = None
+        self.cancel_successed = True
         print("\n下載已取消!!!", flush=True)
 
     def begin_concurrent_download(self):
-        self._t_executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
+        max_worker = os.cpu_count()
+        self._t_executor = concurrent.futures.ThreadPoolExecutor(max_workers=max_worker, thread_name_prefix='TaskPool_CPU_Count_')
         self._t_future = self._t_executor.submit(self.start_download)
 
     def is_concurrent_dowload_completed(self):
