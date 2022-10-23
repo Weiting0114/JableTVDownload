@@ -58,7 +58,6 @@ class JableTVJob:
         self._targetName = None
         self._imageUrl = None
         self._m3u8url = None
-        self.cancel_successed = False
         self.get_url_infos(url, savepath)
 
     def get_url_infos(self, url, savepath=""):
@@ -273,7 +272,6 @@ class JableTVJob:
         if self._t_executor:
             self._t_executor.shutdown(wait=True, cancel_futures=True)
             self._t_executor = None
-        self.cancel_successed = True
         print("\n下載已取消!!!", flush=True)
 
     def begin_concurrent_download(self):

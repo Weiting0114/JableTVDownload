@@ -129,17 +129,11 @@ class JableTVDownloadWindow(tk.Tk):
     def _on_window_closed(self):
         self._is_abort = True
         self._urls_list = []
-        if not self._currentJob:
-            self.destroy()
-        else:
-            self.on_terminate_window()
-            self.save_on_close()
-            try:
-                threading.Thread(target=self._cancel_download_thread).start()
-            except func_timeout.exceptions.FunctionTimedOut:
-                print('task func_timeout')
+        self.on_terminate_window()
+        self.save_on_close()
+        os._exit(0)
         
-    @func_set_timeout(20)
+    @func_set_timeout(10)
     def _cancel_download_thread(self):
         count = 0
         while(self._terminateJob.cancel_successed == False):
@@ -196,7 +190,6 @@ class JableTVDownloadWindow(tk.Tk):
         if self._cancel_all or (self._currentJob and self.urls == self._currentJob.get_url_full()):
             jjob, self._currentJob = self._currentJob, None
             if(jjob):
-                self.cancel_successed = jjob.cancel_successed
                 self.tree.update_item_state(jjob.get_url_short(), "未完成")
                 threading.Thread(target=jjob.cancel_download).start()
         else:
